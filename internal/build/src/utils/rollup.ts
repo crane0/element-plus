@@ -3,6 +3,8 @@ import { epPackage, getPackageDependencies } from '@element-plus/build-utils'
 import type { OutputOptions, RollupBuild } from 'rollup'
 
 export const generateExternal = async (options: { full: boolean }) => {
+  // epPackage: /package/element-plus/package.json
+  // 获取 epPackage 文件的这2个对象的 keys
   const { dependencies, peerDependencies } = getPackageDependencies(epPackage)
 
   return (id: string) => {

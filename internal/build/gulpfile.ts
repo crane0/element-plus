@@ -3,10 +3,10 @@ import { copyFile, mkdir } from 'fs/promises'
 import { copy } from 'fs-extra'
 import { parallel, series } from 'gulp'
 import {
-  buildOutput,
-  epOutput,
-  epPackage,
-  projRoot,
+  buildOutput, // dist
+  epOutput, // dist/element-plus
+  epPackage, // packages\element-plus\package.json
+  projRoot, // 根目录 /
 } from '@element-plus/build-utils'
 import { buildConfig, run, runTask, withTaskName } from './src'
 import type { TaskFunction } from 'gulp'
@@ -26,16 +26,23 @@ export const copyFiles = () =>
   ])
 
 export const copyTypesDefinitions: TaskFunction = (done) => {
+  // /dist/types/packages
   const src = path.resolve(buildOutput, 'types', 'packages')
+  // module: 'esm' | 'cjs'
   const copyTypes = (module: Module) =>
     withTaskName(`copyTypes:${module}`, () =>
+      // esm: dist/element-plus/es
+      // cjs: dist/element-plus/lib
+      // 递归的将 /dist/types/packages 目录下的文件，复制到上面这2个目录下。
       copy(src, buildConfig[module].output.path, { recursive: true })
     )
 
+  // 并行执行
   return parallel(copyTypes('esm'), copyTypes('cjs'))(done)
 }
 
 export const copyFullStyle = async () => {
+  // 异步创建 dist/element-plus/dist 目录，recursive 表示递归创建
   await mkdir(path.resolve(epOutput, 'dist'), { recursive: true })
   await copyFile(
     path.resolve(epOutput, 'theme-chalk/index.css'),

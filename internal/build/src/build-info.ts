@@ -5,7 +5,7 @@ import { epOutput } from '@element-plus/build-utils'
 import type { ModuleFormat } from 'rollup'
 
 export const modules = ['esm', 'cjs'] as const
-export type Module = typeof modules[number]
+export type Module = typeof modules[number] // 最终 Module 为联合类型 'esm' | 'cjs'
 export interface BuildInfo {
   module: 'ESNext' | 'CommonJS'
   format: ModuleFormat
@@ -23,6 +23,7 @@ export interface BuildInfo {
   }
 }
 
+// 表示以 Module 类型为键，BuildInfo 类型为值的对象
 export const buildConfig: Record<Module, BuildInfo> = {
   esm: {
     module: 'ESNext',
