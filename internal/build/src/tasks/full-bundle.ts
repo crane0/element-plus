@@ -1,3 +1,10 @@
+/* 
+  并发生成压缩和不压缩的 umd 和 esm 两种类型的包。
+  入口文件：element-plus/packages/element-plus/index.ts
+  输入目录：element-plus-dev/dist/element-plus/dist/
+
+  更多的 rollup 配置项可以参考 internal\build\src\tasks\modules.ts
+*/
 import path from 'path'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { rollup } from 'rollup'
@@ -26,8 +33,10 @@ import {
 import { target } from '../build-info'
 import type { Plugin } from 'rollup'
 
+// 会在打包后的文件顶部添加。比如 /*! Element Plus v0.0.0-dev.1 */
 const banner = `/*! ${PKG_BRAND_NAME} v${version} */\n`
 
+// 打包项目整体
 async function buildFullEntry(minify: boolean) {
   const plugins: Plugin[] = [
     ElementPlusAlias(),
@@ -53,6 +62,7 @@ async function buildFullEntry(minify: boolean) {
         '.vue': 'ts',
       },
       define: {
+        // 用 value 替换 key。JSON.stringify 确保是双引号
         'process.env.NODE_ENV': JSON.stringify('production'),
       },
       treeShaking: true,
@@ -83,7 +93,7 @@ async function buildFullEntry(minify: boolean) {
         formatBundleFilename('index.full', minify, 'js')
       ),
       exports: 'named',
-      name: PKG_CAMELCASE_NAME,
+      name: PKG_CAMELCASE_NAME, // ElementPlus
       globals: {
         vue: 'Vue',
       },
@@ -103,15 +113,16 @@ async function buildFullEntry(minify: boolean) {
   ])
 }
 
+// 打包国际化
 async function buildFullLocale(minify: boolean) {
   const files = await glob(`**/*.ts`, {
-    cwd: path.resolve(localeRoot, 'lang'),
+    cwd: path.resolve(localeRoot, 'lang'), // packages/local/lang
     absolute: true,
   })
   return Promise.all(
     files.map(async (file) => {
-      const filename = path.basename(file, '.ts')
-      const name = upperFirst(camelCase(filename))
+      const filename = path.basename(file, '.ts') // 返回 file 路径最后的文件名
+      const name = upperFirst(camelCase(filename)) // zh-cn --> zhCn --> ZhCn
 
       const bundle = await rollup({
         input: file,
@@ -119,19 +130,24 @@ async function buildFullLocale(minify: boolean) {
           esbuild({
             minify,
             sourceMap: minify,
-            target,
+            target, // es2018
           }),
         ],
       })
+      // bundle, config
       await writeBundles(bundle, [
         {
           format: 'umd',
           file: path.resolve(
+            // dist/element-plus/dist/locale/filename
             epOutput,
             'dist/locale',
             formatBundleFilename(filename, minify, 'js')
           ),
+          // 适用于只使用 export default ... 的情况，入口文件都是这种方式。
+          // 使用时就可以这样引入了 const yourLib = require('your-lib');
           exports: 'default',
+          // name 用于配置全局变量名来表示 bundle。比如 ElementPlusLocaleZhCn
           name: `${PKG_CAMELCASE_LOCAL_NAME}${name}`,
           sourcemap: minify,
           banner,
@@ -151,9 +167,11 @@ async function buildFullLocale(minify: boolean) {
   )
 }
 
+// minify表示压缩，所以该方法的作用：生成压缩和不压缩的包。
 export const buildFull = (minify: boolean) => async () =>
   Promise.all([buildFullEntry(minify), buildFullLocale(minify)])
 
+// 并发生成压缩和不压缩的包
 export const buildFullBundle = parallel(
   withTaskName('buildFullMinified', buildFull(true)),
   withTaskName('buildFull', buildFull(false))

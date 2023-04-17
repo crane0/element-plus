@@ -31,10 +31,10 @@ export const buildConfig: Record<Module, BuildInfo> = {
     ext: 'mjs',
     output: {
       name: 'es',
-      path: path.resolve(epOutput, 'es'),
+      path: path.resolve(epOutput, 'es'), // dist/element-plus/es
     },
     bundle: {
-      path: `${PKG_NAME}/es`,
+      path: `${PKG_NAME}/es`, // element-plus/es
     },
   },
   cjs: {
@@ -43,13 +43,14 @@ export const buildConfig: Record<Module, BuildInfo> = {
     ext: 'js',
     output: {
       name: 'lib',
-      path: path.resolve(epOutput, 'lib'),
+      path: path.resolve(epOutput, 'lib'), // dist/element-plus/lib
     },
     bundle: {
-      path: `${PKG_NAME}/lib`,
+      path: `${PKG_NAME}/lib`, // element-plus/lib
     },
   },
 }
+// Object.entries 返回自身可枚举属性的键值对数组
 export const buildConfigEntries = Object.entries(
   buildConfig
 ) as BuildConfigEntries

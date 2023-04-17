@@ -1,3 +1,8 @@
+/*
+  这个Task的作用：
+  将/packages里的js ts vue文件，保持原有目录结构（其中 preserveModulesRoot 目标目录提取到根目录），
+  分别打成esm模块和cjs模块，放到dist/element-plus/下,其中es文件夹下存放esm模块代码，lib文件夹下存放cjs模块代码。
+*/
 import { rollup } from 'rollup'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
@@ -16,7 +21,7 @@ import type { OutputOptions } from 'rollup'
 export const buildModules = async () => {
   // exclude ['node_modules', 'test', 'mock', 'gulpfile', 'dist'] 目录
   const input = excludeFiles(
-    // 匹配所有子目录下的 .js .ts .vue 文件
+    // 匹配所有子目录下的所有 .js .ts .vue 文件
     await glob('**/*.{js,ts,vue}', {
       cwd: pkgRoot, // 要搜索的目录(/packages)
       absolute: true, // 返回绝对路径
@@ -27,7 +32,16 @@ export const buildModules = async () => {
   const bundle = await rollup({
     input, // 入口文件
     plugins: [
+      // 自定义插件，替换所有的 @element-plus/theme-chalk 为 element-plus/theme-chalk
       ElementPlusAlias(),
+      /* 
+        https://vue-macros.sxzz.moe/zh-CN/guide/bundler-integration.html#%E5%AE%89%E8%A3%85
+        Vue Macros 是一个库，用于实现尚未被 Vue 正式实现的提案或想法。所以它扩展了一些宏和语法糖到 Vue 中，方便开发。
+        下面这个配置是官方的例子。默认配置项都是开启的，设置 false 来关闭。
+        换句话说，因为在该项目在使用了 VueMacros 的一些宏或语法糖，所以需要再这里配置解析。
+        设置为 false 的配置项说明没有用到相关的功能，所以关闭。
+        另外，默认是有 vue 和 vueJsx 的解析器的，但这里使用了其他的解析器，可能是更稳定一些吧。
+      */
       VueMacros({
         setupComponent: false,
         setupSFC: false,
@@ -42,7 +56,9 @@ export const buildModules = async () => {
         // 配置作用的文件扩展名，默认是 ['.mjs', '.js', '.json', '.node']
         extensions: ['.mjs', '.js', '.json', '.ts'],
       }),
+      // rollup 不支持 CommonJS 模块，所以需要转换为 es6 模块
       commonjs(),
+      // 更快更稳定的打包 js。
       esbuild({
         sourceMap: true, // 默认属性
         target, // es2018，默认es2017
@@ -52,21 +68,35 @@ export const buildModules = async () => {
       }),
     ],
     // 该选项用于匹配需要保留在 bundle 外部的模块。如果是函数，会将所有入口中引入的模块都作为 id 传入
-    // 把 dependencies 和 peerDependencies 中的依赖都作为外部模块
+    // generateExternal 把 dependencies 和 peerDependencies 中的依赖都作为外部模块
     external: await generateExternal({ full: false }),
     treeshake: false,
   })
+
+  /* 
+    https://www.rollupjs.com/guide/tools#gulp
+    Gulp 可以理解 Rollup 返回的 Promise。
+    通过 writeBundles 实现 bundle.write() 输出文件。
+    OutputOptions 文档
+    https://www.rollupjs.com/guide/javascript-api#%E8%BE%93%E5%87%BA%E9%80%89%E9%A1%B9%E5%AF%B9%E8%B1%A1outputoptions-object
+    https://www.rollupjs.com/guide/big-list-of-options#outputdir
+  */
   await writeBundles(
     bundle,
     buildConfigEntries.map(([module, config]): OutputOptions => {
       return {
-        format: config.format,
-        dir: config.output.path,
+        format: config.format, // 必选。指定生成 bundle 的格式，一般对应指定的模块，比如 CommonJS 格式为 cjs，ES 格式为 esm。
+        dir: config.output.path, // 该选项用于指定所有生成 chunk 文件所在的目录。如果生成多个 chunk，则此选项是必须的。否则，可以使用 file 选项代替。
+        // 指定导出模式，决定用户使用 bundle 的方式。named 表示强制所有文件使用命名导出模式。
+        // 对 CommonJS 来说，可以这样使用打包的 bundle：const yourMethod = require('your-lib').yourMethod;
         exports: module === 'cjs' ? 'named' : undefined,
+        // preserveModules 需要配合 dir 一起使用，用于将 input 目录保持不变打包到 output 目录。
+        // 也就是说将 packages 目录下的文件都按照原目录结构打包到 config.output.path: dist/element-plus/es
+        // preserveModulesRoot 用于指定将 epRoot: packages/element-plus 目录的文件打包到 output 目录: dist/element-plus/es。
         preserveModules: true,
         preserveModulesRoot: epRoot,
         sourcemap: true,
-        entryFileNames: `[name].${config.ext}`,
+        entryFileNames: `[name].${config.ext}`, // 指定 chunks 的入口文件名
       }
     })
   )
