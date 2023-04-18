@@ -1,9 +1,10 @@
 /* 
   并发生成压缩和不压缩的 umd 和 esm 两种类型的包。
-  入口文件：element-plus/packages/element-plus/index.ts
+  入口文件：packages/element-plus/index.ts
   输入目录：element-plus-dev/dist/element-plus/dist/
 
-  更多的 rollup 配置项可以参考 internal\build\src\tasks\modules.ts
+  更多的 rollup 配置项可以参考之前的注释 internal\build\src\tasks\modules.ts
+  rollup 的 output.exports 和 output.name 参考 https://iw35cg346x.feishu.cn/wiki/Xrr0wYCi9iMdN1k0sqjcjEsRnwb#IwoodYKCMoUs6oxgjfGcQ6tRn2c
 */
 import path from 'path'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
@@ -61,11 +62,17 @@ async function buildFullEntry(minify: boolean) {
       loaders: {
         '.vue': 'ts',
       },
+      // 用于定义可在代码中使用的全局常量，并且该字段不会经过任何的语法分析，而是直接替换文本。
       define: {
-        // 用 value 替换 key。JSON.stringify 确保是双引号
-        'process.env.NODE_ENV': JSON.stringify('production'),
+        'process.env.NODE_ENV': JSON.stringify('production'), // JSON.stringify 确保是双引号
       },
       treeShaking: true,
+      /* 
+        用于保留特定类型的注释。
+        none: 禁用注释
+        inline：只保留合法的 inline 注释。合法：以 // 开头，紧跟在代码行末尾（同一行）。语句上方的单行注释也算，但代码块内语句上方的就不合法。
+        eof：只保留文件末尾的注释。主要用于保留添加的版权声明或许可证等信息。
+      */
       legalComments: 'eof',
     }),
   ]
@@ -79,9 +86,9 @@ async function buildFullEntry(minify: boolean) {
   }
 
   const bundle = await rollup({
-    input: path.resolve(epRoot, 'index.ts'),
+    input: path.resolve(epRoot, 'index.ts'), // packages/element-plus/index.ts
     plugins,
-    external: await generateExternal({ full: true }),
+    external: await generateExternal({ full: true }), // 并不剔除 @vue 依赖。
     treeshake: true,
   })
   await writeBundles(bundle, [
@@ -90,10 +97,13 @@ async function buildFullEntry(minify: boolean) {
       file: path.resolve(
         epOutput,
         'dist',
-        formatBundleFilename('index.full', minify, 'js')
+        formatBundleFilename('index.full', minify, 'js') // dist/element-plus/dist/
       ),
       exports: 'named',
       name: PKG_CAMELCASE_NAME, // ElementPlus
+      // 将所有导入 vue 的语句全部替换为全局变量名 Vue。因为 vue 做为外部模块不打包进 bundle。使用时单独引入。
+      // 类似替换导入 jquery 的语句为 $。替换导入 lodash 的语句为 _
+      // 具体参考 https://iw35cg346x.feishu.cn/wiki/Xrr0wYCi9iMdN1k0sqjcjEsRnwb#O4eSdiq0GoEw60xwNOdcxTW5njg
       globals: {
         vue: 'Vue',
       },
@@ -139,16 +149,13 @@ async function buildFullLocale(minify: boolean) {
         {
           format: 'umd',
           file: path.resolve(
-            // dist/element-plus/dist/locale/filename
+            // dist/element-plus/dist/locale/zh-cn.js
             epOutput,
             'dist/locale',
             formatBundleFilename(filename, minify, 'js')
           ),
-          // 适用于只使用 export default ... 的情况，入口文件都是这种方式。
-          // 使用时就可以这样引入了 const yourLib = require('your-lib');
           exports: 'default',
-          // name 用于配置全局变量名来表示 bundle。比如 ElementPlusLocaleZhCn
-          name: `${PKG_CAMELCASE_LOCAL_NAME}${name}`,
+          name: `${PKG_CAMELCASE_LOCAL_NAME}${name}`, // 比如 ElementPlusLocaleZhCn
           sourcemap: minify,
           banner,
         },

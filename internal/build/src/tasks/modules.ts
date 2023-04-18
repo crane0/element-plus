@@ -87,8 +87,8 @@ export const buildModules = async () => {
       return {
         format: config.format, // 必选。指定生成 bundle 的格式，一般对应指定的模块，比如 CommonJS 格式为 cjs，ES 格式为 esm。
         dir: config.output.path, // 该选项用于指定所有生成 chunk 文件所在的目录。如果生成多个 chunk，则此选项是必须的。否则，可以使用 file 选项代替。
-        // 指定导出模式，决定用户使用 bundle 的方式。named 表示强制所有文件使用命名导出模式。
-        // 对 CommonJS 来说，可以这样使用打包的 bundle：const yourMethod = require('your-lib').yourMethod;
+        // 指定打包结果应该如何被导出，以便其他 JavaScript 环境可以正确地加载它们。
+        // 具体参考 https://iw35cg346x.feishu.cn/wiki/Xrr0wYCi9iMdN1k0sqjcjEsRnwb#IwoodYKCMoUs6oxgjfGcQ6tRn2c
         exports: module === 'cjs' ? 'named' : undefined,
         // preserveModules 需要配合 dir 一起使用，用于将 input 目录保持不变打包到 output 目录。
         // 也就是说将 packages 目录下的文件都按照原目录结构打包到 config.output.path: dist/element-plus/es
