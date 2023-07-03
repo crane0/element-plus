@@ -28,13 +28,12 @@
       </el-icon>
     </template>
     <el-icon v-else-if="icon || $slots.icon">
+      <!-- 在使用对应图标时，需要引入， -->
+      <!-- https://element-plus.org/zh-CN/component/button.html#%E5%9B%BE%E6%A0%87%E6%8C%89%E9%92%AE -->
       <component :is="icon" v-if="icon" />
       <slot v-else name="icon" />
     </el-icon>
-    <span
-      v-if="$slots.default"
-      :class="{ [ns.em('text', 'expand')]: shouldAddSpace }"
-    >
+    <span v-if="$slots.default" :class="{ [ns.em('text', 'expand')]: shouldAddSpace }">
       <slot />
     </span>
   </button>
@@ -54,10 +53,10 @@ defineOptions({
 const props = defineProps(buttonProps)
 const emit = defineEmits(buttonEmits)
 
+// 自定义颜色
 const buttonStyle = useButtonCustomStyle(props)
 const ns = useNamespace('button')
-const { _ref, _size, _type, _disabled, shouldAddSpace, handleClick } =
-  useButton(props, emit)
+const { _ref, _size, _type, _disabled, shouldAddSpace, handleClick } = useButton(props, emit)
 
 defineExpose({
   /** @description button html element */

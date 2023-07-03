@@ -1,11 +1,6 @@
 <template>
   <div :class="rootKls">
-    <div
-      role="tab"
-      :aria-expanded="isActive"
-      :aria-controls="scopedContentId"
-      :aria-describedby="scopedContentId"
-    >
+    <div role="tab" :aria-expanded="isActive" :aria-controls="scopedContentId" :aria-describedby="scopedContentId">
       <div
         :id="scopedHeadId"
         :class="headKls"
@@ -51,24 +46,10 @@ defineOptions({
 })
 
 const props = defineProps(collapseItemProps)
-const {
-  focusing,
-  id,
-  isActive,
-  handleFocus,
-  handleHeaderClick,
-  handleEnterClick,
-} = useCollapseItem(props)
+const { focusing, id, isActive, handleFocus, handleHeaderClick, handleEnterClick } = useCollapseItem(props)
 
-const {
-  arrowKls,
-  headKls,
-  rootKls,
-  itemWrapperKls,
-  itemContentKls,
-  scopedContentId,
-  scopedHeadId,
-} = useCollapseItemDOM(props, { focusing, isActive, id })
+const { arrowKls, headKls, rootKls, itemWrapperKls, itemContentKls, scopedContentId, scopedHeadId } =
+  useCollapseItemDOM(props, { focusing, isActive, id })
 
 defineExpose({
   /** @description current collapse-item whether active */

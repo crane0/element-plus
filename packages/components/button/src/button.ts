@@ -19,6 +19,7 @@ export const buttonTypes = [
 ] as const
 export const buttonNativeTypes = ['button', 'submit', 'reset'] as const
 
+// 选项式API，
 export const buttonProps = buildProps({
   /**
    * @description button size
@@ -105,10 +106,27 @@ export const buttonProps = buildProps({
     default: undefined,
   },
 } as const)
+
+// https://cn.vuejs.org/api/options-state.html#emits
+// 属性值可以是一个验证函数，会被调用，但即便没有通过验证也没有什么影响。比如添加个 log 什么的。
 export const buttonEmits = {
   click: (evt: MouseEvent) => evt instanceof MouseEvent,
 }
 
+/* 
+  https://cn.vuejs.org/api/utility-types.html#extractproptypes
+  typeof buttonProps 获取 buttonProps 对象的类型
+  ExtractPropTypes 是 Vue 的工具类，提取 props 中的属性类型：对应 props.xxx.type 的类型，
+
+  因为 buildProps 方法会将 type 和 values 和 default 合并，所以 ExtractPropTypes 获取到的是这3个的联合类型。
+  type: {
+    type: String,
+    values: buttonTypes,
+    default: '',
+  },
+
+  导出下面这些类型命名，在其他组件中会用到。
+*/
 export type ButtonProps = ExtractPropTypes<typeof buttonProps>
 export type ButtonEmits = typeof buttonEmits
 

@@ -12,9 +12,7 @@ export const useCollapseItem = (props: CollapseItemProps) => {
   const isClick = ref(false)
   const id = ref(generateId())
 
-  const isActive = computed(() =>
-    collapse?.activeNames.value.includes(props.name)
-  )
+  const isActive = computed(() => collapse?.activeNames.value.includes(props.name))
 
   const handleFocus = () => {
     setTimeout(() => {
@@ -53,18 +51,14 @@ export const useCollapseItemDOM = (
 ) => {
   const ns = useNamespace('collapse')
 
-  const rootKls = computed(() => [
-    ns.b('item'),
-    ns.is('active', unref(isActive)),
-    ns.is('disabled', props.disabled),
-  ])
+  const rootKls = computed(() => [ns.b('item'), ns.is('active', unref(isActive)), ns.is('disabled', props.disabled)])
   const headKls = computed(() => [
-    ns.be('item', 'header'),
+    ns.be('item', 'header'), // el-collapse-item__header
     ns.is('active', unref(isActive)),
     { focusing: unref(focusing) && !props.disabled },
   ])
   const arrowKls = computed(() => [
-    ns.be('item', 'arrow'),
+    ns.be('item', 'arrow'), // el-collapse-item__arrow
     ns.is('active', unref(isActive)),
   ])
   const itemWrapperKls = computed(() => ns.be('item', 'wrap'))

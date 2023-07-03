@@ -11,6 +11,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import esbuild from 'rollup-plugin-esbuild'
 import glob from 'fast-glob' // https://github.com/mrmlnc/fast-glob#basic-syntax
+// 在 package.json 中有全局引入工作区，所以可以使用
 import { epRoot, excludeFiles, pkgRoot } from '@element-plus/build-utils'
 import { generateExternal, writeBundles } from '../utils'
 import { ElementPlusAlias } from '../plugins/element-plus-alias'
@@ -19,7 +20,11 @@ import { buildConfigEntries, target } from '../build-info'
 import type { OutputOptions } from 'rollup'
 
 export const buildModules = async () => {
-  // exclude ['node_modules', 'test', 'mock', 'gulpfile', 'dist'] 目录
+  /* 
+    exclude ['node_modules', 'test', 'mock', 'gulpfile', 'dist'] 目录
+    因为 glob 返回的绝对路径，并且是 js,ts,vue 文件，所以 packages/theme-chalk 被完整排除。
+    test-utils 也被排除。
+  */
   const input = excludeFiles(
     // 匹配所有子目录下的所有 .js .ts .vue 文件
     await glob('**/*.{js,ts,vue}', {
@@ -90,10 +95,11 @@ export const buildModules = async () => {
         // 指定打包结果应该如何被导出，以便其他 JavaScript 环境可以正确地加载它们。
         // 具体参考 https://iw35cg346x.feishu.cn/wiki/Xrr0wYCi9iMdN1k0sqjcjEsRnwb#IwoodYKCMoUs6oxgjfGcQ6tRn2c
         exports: module === 'cjs' ? 'named' : undefined,
-        // preserveModules 需要配合 dir 一起使用，用于将 input 目录保持不变打包到 output 目录。
+        // preserveModules 需要配合 dir 一起使用，用于将 input 目录保持不变打包到 output 目录（使用原始模块名作为文件名）。
         // 也就是说将 packages 目录下的文件都按照原目录结构打包到 config.output.path: dist/element-plus/es
-        // preserveModulesRoot 用于指定将 epRoot: packages/element-plus 目录的文件打包到 output 目录: dist/element-plus/es。
         preserveModules: true,
+        // preserveModulesRoot 用于将指定的目录内容直接打包（而不是保持原目录）到 output 目录，
+        // 也就是说将 epRoot: packages/element-plus 目录下的文件打包到 output 目录: dist/element-plus/es。而不是 dist/element-plus/es/element-plus 目录
         preserveModulesRoot: epRoot,
         sourcemap: true,
         entryFileNames: `[name].${config.ext}`, // 指定 chunks 的入口文件名

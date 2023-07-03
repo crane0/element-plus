@@ -3,8 +3,11 @@
 @use '../common/var' as *;
 @use './mixins' as *;
 
+// $size: number / object
 @mixin col-size($size) {
+  // res 在 mixins 中
   @include res($size) {
+    // .el-col-xs-0
     .#{$namespace}-col-#{$size}-0 {
       display: none;
       @include when(guttered) {
@@ -13,6 +16,7 @@
     }
     @for $i from 0 through 24 {
       .#{$namespace}-col-#{$size}-#{$i} {
+        // el-col-xs-2
         @if $i != 0 {
           display: block;
         }
@@ -21,6 +25,7 @@
       }
 
       .#{$namespace}-col-#{$size}-offset-#{$i} {
+        // el-col-xs-offset-2
         margin-left: (math.div(1, 24) * $i * 100) * 1%;
       }
 

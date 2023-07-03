@@ -10,9 +10,11 @@ export type ExperimentalFeatures = {
   // TO BE Defined
 }
 
+// 全局定义的一些 Props
 export const configProviderProps = buildProps({
   /**
    * @description Controlling if the users want a11y features
+   * Accessibility 的缩写，表示可访问性。
    */
   a11y: {
     type: Boolean,

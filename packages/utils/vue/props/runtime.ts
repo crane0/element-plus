@@ -1,8 +1,11 @@
 import { warn } from 'vue'
+// https://www.lodashjs.com/docs/lodash.fromPairs
 import { fromPairs } from 'lodash-unified'
 import { isObject } from '../../types'
 import { hasOwn } from '../../objects'
 
+// https://cn.vuejs.org/guide/typescript/options-api.html#typing-component-props
+// 用于标记复杂的 props 类型
 import type { PropType } from 'vue'
 import type {
   EpProp,
@@ -17,10 +20,10 @@ import type {
 
 export const epPropKey = '__epPropKey'
 
+// PropType 自定义Props类型验证
 export const definePropType = <T>(val: any): PropType<T> => val
 
-export const isEpProp = (val: unknown): val is EpProp<any, any, any> =>
-  isObject(val) && !!(val as any)[epPropKey]
+export const isEpProp = (val: unknown): val is EpProp<any, any, any> => isObject(val) && !!(val as any)[epPropKey]
 
 /**
  * @description Build prop. It can better optimize prop types
@@ -33,7 +36,7 @@ export const isEpProp = (val: unknown): val is EpProp<any, any, any> =>
     values: ['light', 'dark'],
   } as const)
   * @example
-  // limited options and other types
+  // limited options and other types 
   // the type will be PropType<'small' | 'large' | number>
   buildProp({
     type: [String, Number],
@@ -73,15 +76,11 @@ export const buildProp = <
           if (validator) valid ||= validator(val)
 
           if (!valid && allowedValues.length > 0) {
-            const allowValuesText = [...new Set(allowedValues)]
-              .map((value) => JSON.stringify(value))
-              .join(', ')
+            const allowValuesText = [...new Set(allowedValues)].map((value) => JSON.stringify(value)).join(', ')
             warn(
               `Invalid prop: validation failed${
                 key ? ` for prop "${key}"` : ''
-              }. Expected one of [${allowValuesText}], got value ${JSON.stringify(
-                val
-              )}.`
+              }. Expected one of [${allowValuesText}], got value ${JSON.stringify(val)}.`
             )
           }
           return valid
@@ -99,24 +98,9 @@ export const buildProp = <
 }
 
 export const buildProps = <
-  Props extends Record<
-    string,
-    | { [epPropKey]: true }
-    | NativePropType
-    | EpPropInput<any, any, any, any, any>
-  >
+  Props extends Record<string, { [epPropKey]: true } | NativePropType | EpPropInput<any, any, any, any, any>>
 >(
   props: Props
 ): {
-  [K in keyof Props]: IfEpProp<
-    Props[K],
-    Props[K],
-    IfNativePropType<Props[K], Props[K], EpPropConvert<Props[K]>>
-  >
-} =>
-  fromPairs(
-    Object.entries(props).map(([key, option]) => [
-      key,
-      buildProp(option as any, key),
-    ])
-  ) as any
+  [K in keyof Props]: IfEpProp<Props[K], Props[K], IfNativePropType<Props[K], Props[K], EpPropConvert<Props[K]>>>
+} => fromPairs(Object.entries(props).map(([key, option]) => [key, buildProp(option as any, key)])) as any

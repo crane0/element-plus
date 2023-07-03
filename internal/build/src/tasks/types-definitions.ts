@@ -1,3 +1,7 @@
+/* 
+  根据element-plus/packages/下的文件生成对应的类型声明文件，
+  输出到 element-plus-dev/dist/types/
+*/
 import process from 'process'
 import path from 'path'
 import { mkdir, readFile, writeFile } from 'fs/promises'
@@ -6,18 +10,12 @@ import * as vueCompiler from 'vue/compiler-sfc'
 import glob from 'fast-glob'
 import chalk from 'chalk'
 import { Project } from 'ts-morph'
-import {
-  buildOutput,
-  epRoot,
-  excludeFiles,
-  pkgRoot,
-  projRoot,
-} from '@element-plus/build-utils'
+import { buildOutput, epRoot, excludeFiles, pkgRoot, projRoot } from '@element-plus/build-utils'
 import { pathRewriter } from '../utils'
 import type { CompilerOptions, SourceFile } from 'ts-morph'
 
 const TSCONFIG_PATH = path.resolve(projRoot, 'tsconfig.web.json')
-const outDir = path.resolve(buildOutput, 'types')
+const outDir = path.resolve(buildOutput, 'types') // dist/types
 
 /**
  * fork = require( https://github.com/egoist/vue-dts-gen/blob/main/src/index.ts
@@ -49,11 +47,7 @@ export const generateTypesDefinitions = async () => {
 
   const tasks = sourceFiles.map(async (sourceFile) => {
     const relativePath = path.relative(pkgRoot, sourceFile.getFilePath())
-    consola.trace(
-      chalk.yellow(
-        `Generating definition for file: ${chalk.bold(relativePath)}`
-      )
-    )
+    consola.trace(chalk.yellow(`Generating definition for file: ${chalk.bold(relativePath)}`))
 
     const emitOutput = sourceFile.getEmitOutput()
     const emitFiles = emitOutput.getOutputFiles()
@@ -67,17 +61,9 @@ export const generateTypesDefinitions = async () => {
         recursive: true,
       })
 
-      await writeFile(
-        filepath,
-        pathRewriter('esm')(outputFile.getText()),
-        'utf8'
-      )
+      await writeFile(filepath, pathRewriter('esm')(outputFile.getText()), 'utf8')
 
-      consola.success(
-        chalk.green(
-          `Definition for file: ${chalk.bold(relativePath)} generated`
-        )
-      )
+      consola.success(chalk.green(`Definition for file: ${chalk.bold(relativePath)} generated`))
     })
 
     await Promise.all(subTasks)
@@ -99,7 +85,7 @@ async function addSourceFiles(project: Project) {
   )
   const epPaths = excludeFiles(
     await glob(globSourceFile, {
-      cwd: epRoot,
+      cwd: epRoot, // packages/element-plus
       onlyFiles: true,
     })
   )
@@ -114,8 +100,7 @@ async function addSourceFiles(project: Project) {
         const sfc = vueCompiler.parse(content)
         const { script, scriptSetup } = sfc.descriptor
         if (script || scriptSetup) {
-          let content =
-            (hasTsNoCheck ? '// @ts-nocheck\n' : '') + (script?.content ?? '')
+          let content = (hasTsNoCheck ? '// @ts-nocheck\n' : '') + (script?.content ?? '')
 
           if (scriptSetup) {
             const compiled = vueCompiler.compileScript(sfc.descriptor, {
@@ -125,10 +110,7 @@ async function addSourceFiles(project: Project) {
           }
 
           const lang = scriptSetup?.lang || script?.lang || 'js'
-          const sourceFile = project.createSourceFile(
-            `${path.relative(process.cwd(), file)}.${lang}`,
-            content
-          )
+          const sourceFile = project.createSourceFile(`${path.relative(process.cwd(), file)}.${lang}`, content)
           sourceFiles.push(sourceFile)
         }
       } else {
@@ -138,9 +120,7 @@ async function addSourceFiles(project: Project) {
     }),
     ...epPaths.map(async (file) => {
       const content = await readFile(path.resolve(epRoot, file), 'utf-8')
-      sourceFiles.push(
-        project.createSourceFile(path.resolve(pkgRoot, file), content)
-      )
+      sourceFiles.push(project.createSourceFile(path.resolve(pkgRoot, file), content))
     }),
   ])
 

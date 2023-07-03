@@ -44,13 +44,14 @@ const colKls = computed(() => {
   const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const
   sizes.forEach((size) => {
     if (isNumber(props[size])) {
-      classes.push(ns.b(`${size}-${props[size]}`))
+      classes.push(ns.b(`${size}-${props[size]}`)) // el-col-xs-2
     } else if (isObject(props[size])) {
+      // props[xs] = { span?: number, offset?: number, pull?: number, push?: number }
       Object.entries(props[size]).forEach(([prop, sizeProp]) => {
         classes.push(
           prop !== 'span'
-            ? ns.b(`${size}-${prop}-${sizeProp}`)
-            : ns.b(`${size}-${sizeProp}`)
+            ? ns.b(`${size}-${prop}-${sizeProp}`) // el-col-xs-offset-2
+            : ns.b(`${size}-${sizeProp}`) // el-col-xs-2
         )
       })
     }

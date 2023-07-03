@@ -1,13 +1,9 @@
 import type { SetupContext, UnwrapRef } from 'vue'
-import type {
-  RuleItem,
-  ValidateError,
-  ValidateFieldsError,
-} from 'async-validator'
+import type { RuleItem, ValidateError, ValidateFieldsError } from 'async-validator'
 import type { ComponentSize } from '@element-plus/constants'
 import type { Arrayable } from '@element-plus/utils'
 import type {
-  FormItemProp,
+  FormItemProp, //  Arrayable<string>
   FormItemProps,
   FormItemValidateState,
 } from './form-item'
@@ -22,10 +18,7 @@ export interface FormItemRule extends RuleItem {
 export type FormRules = Partial<Record<string, Arrayable<FormItemRule>>>
 
 export type FormValidationResult = Promise<boolean>
-export type FormValidateCallback = (
-  isValid: boolean,
-  invalidFields?: ValidateFieldsError
-) => void
+export type FormValidateCallback = (isValid: boolean, invalidFields?: ValidateFieldsError) => void
 export interface FormValidateFailure {
   errors: ValidateError[] | null
   fields: ValidateFieldsError
@@ -40,10 +33,7 @@ export type FormContext = FormProps &
     removeField: (field: FormItemContext) => void
     resetFields: (props?: Arrayable<FormItemProp>) => void
     clearValidate: (props?: Arrayable<FormItemProp>) => void
-    validateField: (
-      props?: Arrayable<FormItemProp>,
-      callback?: FormValidateCallback
-    ) => FormValidationResult
+    validateField: (props?: Arrayable<FormItemProp>, callback?: FormValidateCallback) => FormValidationResult
   }
 
 export interface FormItemContext extends FormItemProps {
@@ -56,10 +46,7 @@ export interface FormItemContext extends FormItemProps {
   hasLabel: boolean
   addInputId: (id: string) => void
   removeInputId: (id: string) => void
-  validate: (
-    trigger: string,
-    callback?: FormValidateCallback
-  ) => FormValidationResult
+  validate: (trigger: string, callback?: FormValidateCallback) => FormValidationResult
   resetField(): void
   clearValidate(): void
 }

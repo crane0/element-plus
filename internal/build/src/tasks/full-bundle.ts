@@ -17,20 +17,11 @@ import esbuild, { minify as minifyPlugin } from 'rollup-plugin-esbuild'
 import { parallel } from 'gulp'
 import glob from 'fast-glob'
 import { camelCase, upperFirst } from 'lodash'
-import {
-  PKG_BRAND_NAME,
-  PKG_CAMELCASE_LOCAL_NAME,
-  PKG_CAMELCASE_NAME,
-} from '@element-plus/build-constants'
+import { PKG_BRAND_NAME, PKG_CAMELCASE_LOCAL_NAME, PKG_CAMELCASE_NAME } from '@element-plus/build-constants'
 import { epOutput, epRoot, localeRoot } from '@element-plus/build-utils'
 import { version } from '../../../../packages/element-plus/version'
 import { ElementPlusAlias } from '../plugins/element-plus-alias'
-import {
-  formatBundleFilename,
-  generateExternal,
-  withTaskName,
-  writeBundles,
-} from '../utils'
+import { formatBundleFilename, generateExternal, withTaskName, writeBundles } from '../utils'
 import { target } from '../build-info'
 import type { Plugin } from 'rollup'
 
@@ -88,7 +79,9 @@ async function buildFullEntry(minify: boolean) {
   const bundle = await rollup({
     input: path.resolve(epRoot, 'index.ts'), // packages/element-plus/index.ts
     plugins,
-    external: await generateExternal({ full: true }), // 并不剔除 @vue 依赖。
+    // 之所以将@vue/工具函数一同打成umd包，是为了给unpkg和jsdelivr使用。
+    // packages\element-plus\package.json 第35,36行。
+    external: await generateExternal({ full: true }),
     treeshake: true,
   })
   await writeBundles(bundle, [
@@ -112,11 +105,7 @@ async function buildFullEntry(minify: boolean) {
     },
     {
       format: 'esm',
-      file: path.resolve(
-        epOutput,
-        'dist',
-        formatBundleFilename('index.full', minify, 'mjs')
-      ),
+      file: path.resolve(epOutput, 'dist', formatBundleFilename('index.full', minify, 'mjs')),
       sourcemap: minify,
       banner,
     },
@@ -161,11 +150,7 @@ async function buildFullLocale(minify: boolean) {
         },
         {
           format: 'esm',
-          file: path.resolve(
-            epOutput,
-            'dist/locale',
-            formatBundleFilename(filename, minify, 'mjs')
-          ),
+          file: path.resolve(epOutput, 'dist/locale', formatBundleFilename(filename, minify, 'mjs')),
           sourcemap: minify,
           banner,
         },
@@ -175,8 +160,7 @@ async function buildFullLocale(minify: boolean) {
 }
 
 // minify表示压缩，所以该方法的作用：生成压缩和不压缩的包。
-export const buildFull = (minify: boolean) => async () =>
-  Promise.all([buildFullEntry(minify), buildFullLocale(minify)])
+export const buildFull = (minify: boolean) => async () => Promise.all([buildFullEntry(minify), buildFullLocale(minify)])
 
 // 并发生成压缩和不压缩的包
 export const buildFullBundle = parallel(

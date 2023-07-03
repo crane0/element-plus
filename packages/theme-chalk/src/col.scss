@@ -20,6 +20,11 @@
   }
 }
 
+/* 
+  math.div(1, 24) = 1/24
+  当 offset 或 pull 或 push 超过24时，就不会有对应的 class。则是无效值。
+  相对定位时，元素A并未脱离文档流。也就是其他元素会按照元素A的初始位置正常布局。同时元素A的 right 和 left 也会生效（元素A的初始位置会变成空白占位）。
+*/
 @for $i from 0 through 24 {
   .#{$namespace}-col-#{$i} {
     max-width: (math.div(1, 24) * $i * 100) * 1%;

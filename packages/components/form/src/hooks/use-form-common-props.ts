@@ -11,18 +11,14 @@ export const useFormSize = (
 ) => {
   const emptyRef = ref(undefined)
 
-  const size = ignore.prop ? emptyRef : useProp<ComponentSize>('size')
+  const size = ignore.prop ? emptyRef : useProp<ComponentSize>('size') // 传入的 props
   const globalConfig = ignore.global ? emptyRef : useGlobalSize()
-  const form = ignore.form
-    ? { size: undefined }
-    : inject(formContextKey, undefined)
-  const formItem = ignore.formItem
-    ? { size: undefined }
-    : inject(formItemContextKey, undefined)
+  const form = ignore.form ? { size: undefined } : inject(formContextKey, undefined)
+  const formItem = ignore.formItem ? { size: undefined } : inject(formItemContextKey, undefined)
 
   return computed(
     (): ComponentSize =>
-      size.value ||
+      size.value || // 传入的 props 优先级最高
       unref(fallback) ||
       formItem?.size ||
       form?.size ||
@@ -31,12 +27,11 @@ export const useFormSize = (
   )
 }
 
+// 按优先级获取 disabled。传递的 props.disabled > fallback > form.disabled > 默认值 false
 export const useFormDisabled = (fallback?: MaybeRef<boolean | undefined>) => {
-  const disabled = useProp<boolean>('disabled')
+  const disabled = useProp<boolean>('disabled') // 获取调用该方法的组件的 props.disabled
   const form = inject(formContextKey, undefined)
-  return computed(
-    () => disabled.value || unref(fallback) || form?.disabled || false
-  )
+  return computed(() => disabled.value || unref(fallback) || form?.disabled || false)
 }
 
 // These exports are used for preventing breaking changes

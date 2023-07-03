@@ -1,13 +1,12 @@
+// 在根目录的 package.json 中引入了工作区，所以可以在子项目中可以直接使用
+// 该文件会在 ./defaults 中 引入，全量注册组件时使用。
 import { ElAffix } from '@element-plus/components/affix'
 import { ElAlert } from '@element-plus/components/alert'
 import { ElAutocomplete } from '@element-plus/components/autocomplete'
 import { ElAvatar } from '@element-plus/components/avatar'
 import { ElBacktop } from '@element-plus/components/backtop'
 import { ElBadge } from '@element-plus/components/badge'
-import {
-  ElBreadcrumb,
-  ElBreadcrumbItem,
-} from '@element-plus/components/breadcrumb'
+import { ElBreadcrumb, ElBreadcrumbItem } from '@element-plus/components/breadcrumb'
 import { ElButton, ElButtonGroup } from '@element-plus/components/button'
 import { ElCalendar } from '@element-plus/components/calendar'
 import { ElCard } from '@element-plus/components/card'
@@ -15,36 +14,19 @@ import { ElCarousel, ElCarouselItem } from '@element-plus/components/carousel'
 import { ElCascader } from '@element-plus/components/cascader'
 import { ElCascaderPanel } from '@element-plus/components/cascader-panel'
 import { ElCheckTag } from '@element-plus/components/check-tag'
-import {
-  ElCheckbox,
-  ElCheckboxButton,
-  ElCheckboxGroup,
-} from '@element-plus/components/checkbox'
+import { ElCheckbox, ElCheckboxButton, ElCheckboxGroup } from '@element-plus/components/checkbox'
 import { ElCol } from '@element-plus/components/col'
 import { ElCollapse, ElCollapseItem } from '@element-plus/components/collapse'
 import { ElCollapseTransition } from '@element-plus/components/collapse-transition'
 import { ElColorPicker } from '@element-plus/components/color-picker'
 import { ElConfigProvider } from '@element-plus/components/config-provider'
-import {
-  ElAside,
-  ElContainer,
-  ElFooter,
-  ElHeader,
-  ElMain,
-} from '@element-plus/components/container'
+import { ElAside, ElContainer, ElFooter, ElHeader, ElMain } from '@element-plus/components/container'
 import { ElDatePicker } from '@element-plus/components/date-picker'
-import {
-  ElDescriptions,
-  ElDescriptionsItem,
-} from '@element-plus/components/descriptions'
+import { ElDescriptions, ElDescriptionsItem } from '@element-plus/components/descriptions'
 import { ElDialog } from '@element-plus/components/dialog'
 import { ElDivider } from '@element-plus/components/divider'
 import { ElDrawer } from '@element-plus/components/drawer'
-import {
-  ElDropdown,
-  ElDropdownItem,
-  ElDropdownMenu,
-} from '@element-plus/components/dropdown'
+import { ElDropdown, ElDropdownItem, ElDropdownMenu } from '@element-plus/components/dropdown'
 import { ElEmpty } from '@element-plus/components/empty'
 import { ElForm, ElFormItem } from '@element-plus/components/form'
 import { ElIcon } from '@element-plus/components/icon'
@@ -53,32 +35,19 @@ import { ElImageViewer } from '@element-plus/components/image-viewer'
 import { ElInput } from '@element-plus/components/input'
 import { ElInputNumber } from '@element-plus/components/input-number'
 import { ElLink } from '@element-plus/components/link'
-import {
-  ElMenu,
-  ElMenuItem,
-  ElMenuItemGroup,
-  ElSubMenu,
-} from '@element-plus/components/menu'
+import { ElMenu, ElMenuItem, ElMenuItemGroup, ElSubMenu } from '@element-plus/components/menu'
 import { ElPageHeader } from '@element-plus/components/page-header'
 import { ElPagination } from '@element-plus/components/pagination'
 import { ElPopconfirm } from '@element-plus/components/popconfirm'
 import { ElPopover } from '@element-plus/components/popover'
 import { ElPopper } from '@element-plus/components/popper'
 import { ElProgress } from '@element-plus/components/progress'
-import {
-  ElRadio,
-  ElRadioButton,
-  ElRadioGroup,
-} from '@element-plus/components/radio'
+import { ElRadio, ElRadioButton, ElRadioGroup } from '@element-plus/components/radio'
 import { ElRate } from '@element-plus/components/rate'
 import { ElResult } from '@element-plus/components/result'
 import { ElRow } from '@element-plus/components/row'
 import { ElScrollbar } from '@element-plus/components/scrollbar'
-import {
-  ElOption,
-  ElOptionGroup,
-  ElSelect,
-} from '@element-plus/components/select'
+import { ElOption, ElOptionGroup, ElSelect } from '@element-plus/components/select'
 import { ElSelectV2 } from '@element-plus/components/select-v2'
 import { ElSkeleton, ElSkeletonItem } from '@element-plus/components/skeleton'
 import { ElSlider } from '@element-plus/components/slider'

@@ -20,6 +20,7 @@ export const colProps = buildProps({
   },
   /**
    * @description number of column the grid spans
+   * 栅格占据的列数（默认总列数24）
    */
   span: {
     type: Number,
@@ -27,6 +28,7 @@ export const colProps = buildProps({
   },
   /**
    * @description number of spacing on the left side of the grid
+   * 栅格左侧的间隔格数（当前栅格距左边栅格的距离，距离用栅格数表示）
    */
   offset: {
     type: Number,
@@ -34,6 +36,7 @@ export const colProps = buildProps({
   },
   /**
    * @description number of columns that grid moves to the left
+   * 栅格向左移动格数
    */
   pull: {
     type: Number,
@@ -41,6 +44,7 @@ export const colProps = buildProps({
   },
   /**
    * @description number of columns that grid moves to the right
+   * 栅格向右移动格数
    */
   push: {
     type: Number,
@@ -48,6 +52,8 @@ export const colProps = buildProps({
   },
   /**
    * @description `<768px` Responsive columns or column props object
+   * 下面这几个都是响应式属性。<768px 时占据的栅格数。
+   * definePropType 是自定义的，返回值和参数一致，只不过指定了返回值类型。
    */
   xs: {
     type: definePropType<ColSize>([Number, Object]),

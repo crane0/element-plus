@@ -15,14 +15,8 @@ import type { Module } from './src'
 export const copyFiles = () =>
   Promise.all([
     copyFile(epPackage, path.join(epOutput, 'package.json')),
-    copyFile(
-      path.resolve(projRoot, 'README.md'),
-      path.resolve(epOutput, 'README.md')
-    ),
-    copyFile(
-      path.resolve(projRoot, 'global.d.ts'),
-      path.resolve(epOutput, 'global.d.ts')
-    ),
+    copyFile(path.resolve(projRoot, 'README.md'), path.resolve(epOutput, 'README.md')),
+    copyFile(path.resolve(projRoot, 'global.d.ts'), path.resolve(epOutput, 'global.d.ts')),
   ])
 
 export const copyTypesDefinitions: TaskFunction = (done) => {
@@ -44,10 +38,7 @@ export const copyTypesDefinitions: TaskFunction = (done) => {
 export const copyFullStyle = async () => {
   // 异步创建 dist/element-plus/dist 目录，recursive 表示递归创建
   await mkdir(path.resolve(epOutput, 'dist'), { recursive: true })
-  await copyFile(
-    path.resolve(epOutput, 'theme-chalk/index.css'),
-    path.resolve(epOutput, 'dist/index.css')
-  )
+  await copyFile(path.resolve(epOutput, 'theme-chalk/index.css'), path.resolve(epOutput, 'dist/index.css'))
 }
 
 export default series(
@@ -60,9 +51,7 @@ export default series(
     runTask('generateTypesDefinitions'),
     runTask('buildHelper'),
     series(
-      withTaskName('buildThemeChalk', () =>
-        run('pnpm run -C packages/theme-chalk build')
-      ),
+      withTaskName('buildThemeChalk', () => run('pnpm run -C packages/theme-chalk build')),
       copyFullStyle
     )
   ),
@@ -70,4 +59,5 @@ export default series(
   parallel(copyTypesDefinitions, copyFiles)
 )
 
+// 只有公有任务可以被gulp命令直接调用，使用 export 注册公有任务。
 export * from './src'
