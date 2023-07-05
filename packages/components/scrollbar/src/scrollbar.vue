@@ -1,38 +1,17 @@
 <template>
   <div ref="scrollbarRef" :class="ns.b()">
     <div ref="wrapRef" :class="wrapKls" :style="style" @scroll="handleScroll">
-      <component
-        :is="tag"
-        ref="resizeRef"
-        :class="resizeKls"
-        :style="viewStyle"
-      >
+      <component :is="tag" ref="resizeRef" :class="resizeKls" :style="viewStyle">
         <slot />
       </component>
     </div>
     <template v-if="!native">
-      <bar
-        ref="barRef"
-        :height="sizeHeight"
-        :width="sizeWidth"
-        :always="always"
-        :ratio-x="ratioX"
-        :ratio-y="ratioY"
-      />
+      <bar ref="barRef" :height="sizeHeight" :width="sizeWidth" :always="always" :ratio-x="ratioX" :ratio-y="ratioY" />
     </template>
   </div>
 </template>
 <script lang="ts" setup>
-import {
-  computed,
-  nextTick,
-  onMounted,
-  onUpdated,
-  provide,
-  reactive,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onMounted, onUpdated, provide, reactive, ref, watch } from 'vue'
 import { useEventListener, useResizeObserver } from '@vueuse/core'
 import { addUnit, debugWarn, isNumber, isObject } from '@element-plus/utils'
 import { useNamespace } from '@element-plus/hooks'
@@ -67,9 +46,13 @@ const barRef = ref<BarInstance>()
 const ratioY = ref(1)
 const ratioX = ref(1)
 
+/**
+ * height: 滚动条高度
+ * maxHeight：滚动条最大高度
+ */
 const style = computed<StyleValue>(() => {
   const style: CSSProperties = {}
-  if (props.height) style.height = addUnit(props.height)
+  if (props.height) style.height = addUnit(props.height) // addUnit 添加 px 单位
   if (props.maxHeight) style.maxHeight = addUnit(props.maxHeight)
   return [props.wrapStyle, style]
 })
@@ -77,19 +60,20 @@ const style = computed<StyleValue>(() => {
 const wrapKls = computed(() => {
   return [
     props.wrapClass,
-    ns.e('wrap'),
-    { [ns.em('wrap', 'hidden-default')]: !props.native },
+    ns.e('wrap'), // el-scrollbar__wrap
+    { [ns.em('wrap', 'hidden-default')]: !props.native }, // el-scrollbar__wrap--hidden-default
   ]
 })
 
 const resizeKls = computed(() => {
-  return [ns.e('view'), props.viewClass]
+  return [ns.e('view'), props.viewClass] // el-scrollbar__view
 })
 
 const handleScroll = () => {
   if (wrapRef.value) {
     barRef.value?.handleScroll(wrapRef.value)
 
+    // 元素滚动的距离
     emit('scroll', {
       scrollTop: wrapRef.value.scrollTop,
       scrollLeft: wrapRef.value.scrollLeft,
@@ -99,6 +83,7 @@ const handleScroll = () => {
 
 // TODO: refactor method overrides, due to script setup dts
 // @ts-nocheck
+// expose 的方法，滚动到一组特定坐标
 function scrollTo(xCord: number, yCord?: number): void
 function scrollTo(options: ScrollToOptions): void
 function scrollTo(arg1: unknown, arg2?: number) {
@@ -109,6 +94,7 @@ function scrollTo(arg1: unknown, arg2?: number) {
   }
 }
 
+// expose 的方法，设置滚动条到顶部的距离
 const setScrollTop = (value: number) => {
   if (!isNumber(value)) {
     debugWarn(COMPONENT_NAME, 'value must be a number')
@@ -125,24 +111,19 @@ const setScrollLeft = (value: number) => {
   wrapRef.value!.scrollLeft = value
 }
 
+// expose 的方法，手动更新滚动条状态
 const update = () => {
   if (!wrapRef.value) return
-  const offsetHeight = wrapRef.value.offsetHeight - GAP
+  const offsetHeight = wrapRef.value.offsetHeight - GAP // GAP el-scrollbar__bar 上下各有2px距离
   const offsetWidth = wrapRef.value.offsetWidth - GAP
 
-  const originalHeight = offsetHeight ** 2 / wrapRef.value.scrollHeight
+  const originalHeight = offsetHeight ** 2 / wrapRef.value.scrollHeight // offsetHeight 可视区域高度，scrollHeight 内容高度（包括隐藏）
   const originalWidth = offsetWidth ** 2 / wrapRef.value.scrollWidth
-  const height = Math.max(originalHeight, props.minSize)
+  const height = Math.max(originalHeight, props.minSize) // minSize 滚动条最小尺寸
   const width = Math.max(originalWidth, props.minSize)
 
-  ratioY.value =
-    originalHeight /
-    (offsetHeight - originalHeight) /
-    (height / (offsetHeight - height))
-  ratioX.value =
-    originalWidth /
-    (offsetWidth - originalWidth) /
-    (width / (offsetWidth - width))
+  ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height))
+  ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width))
 
   sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : ''
   sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : ''

@@ -7,8 +7,7 @@ import type { CSSProperties } from 'vue'
 
 const SCOPE = 'utils/dom/style'
 
-export const classNameToArray = (cls = '') =>
-  cls.split(' ').filter((item) => !!item.trim())
+export const classNameToArray = (cls = '') => cls.split(' ').filter((item) => !!item.trim())
 
 export const hasClass = (el: Element, cls: string): boolean => {
   if (!el || !cls) return false
@@ -26,10 +25,7 @@ export const removeClass = (el: Element, cls: string) => {
   el.classList.remove(...classNameToArray(cls))
 }
 
-export const getStyle = (
-  element: HTMLElement,
-  styleName: keyof CSSProperties
-): string => {
+export const getStyle = (element: HTMLElement, styleName: keyof CSSProperties): string => {
   if (!isClient || !element || !styleName) return ''
 
   let key = camelize(styleName)
@@ -52,19 +48,14 @@ export const setStyle = (
   if (!element || !styleName) return
 
   if (isObject(styleName)) {
-    entriesOf(styleName).forEach(([prop, value]) =>
-      setStyle(element, prop, value)
-    )
+    entriesOf(styleName).forEach(([prop, value]) => setStyle(element, prop, value))
   } else {
     const key: any = camelize(styleName)
     element.style[key] = value as any
   }
 }
 
-export const removeStyle = (
-  element: HTMLElement,
-  style: CSSProperties | keyof CSSProperties
-) => {
+export const removeStyle = (element: HTMLElement, style: CSSProperties | keyof CSSProperties) => {
   if (!element || !style) return
 
   if (isObject(style)) {
@@ -74,6 +65,7 @@ export const removeStyle = (
   }
 }
 
+// 添加单位
 export function addUnit(value?: string | number, defaultUnit = 'px') {
   if (!value) return ''
   if (isNumber(value) || isStringNumber(value)) {

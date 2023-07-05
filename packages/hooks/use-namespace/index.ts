@@ -4,7 +4,14 @@ import type { InjectionKey, Ref } from 'vue'
 
 export const defaultNamespace = 'el'
 const statePrefix = 'is-'
-
+/**
+ * @param namespace 命名空间 el
+ * @param block 块（一般为组件名称），比如 el-button
+ * @param blockSuffix 组件后缀，比如 el-button-group
+ * @param element 元素，因为已经有组件名称了，所以一般为组件内的后代元素，比如 el-scrollbar__bar
+ * @param modifier 组件的不同状态 el-button--danger
+ * @returns
+ */
 const _bem = (namespace: string, block: string, blockSuffix: string, element: string, modifier: string) => {
   let cls = `${namespace}-${block}`
   if (blockSuffix) {
@@ -29,11 +36,17 @@ export const useGetDerivedNamespace = (namespaceOverrides?: Ref<string | undefin
   return namespace
 }
 
+/**
+ * 当调用 useNamespace 时，会传入组件名称，比如 const ns = useNamespace('button')，所以
+ * ns.b() 是加后缀，比如 ns.b('group'): el-button-group
+ * ns.e() 和 ns.m() 同理
+ * 其他的就是组合起来了。
+ */
 export const useNamespace = (block: string, namespaceOverrides?: Ref<string | undefined>) => {
   const namespace = useGetDerivedNamespace(namespaceOverrides)
-  const b = (blockSuffix = '') => _bem(namespace.value, block, blockSuffix, '', '') // el-button
+  const b = (blockSuffix = '') => _bem(namespace.value, block, blockSuffix, '', '')
   const e = (element?: string) => (element ? _bem(namespace.value, block, '', element, '') : '')
-  const m = (modifier?: string) => (modifier ? _bem(namespace.value, block, '', '', modifier) : '') // el-button__small
+  const m = (modifier?: string) => (modifier ? _bem(namespace.value, block, '', '', modifier) : '')
   const be = (blockSuffix?: string, element?: string) =>
     blockSuffix && element ? _bem(namespace.value, block, blockSuffix, element, '') : ''
   const em = (element?: string, modifier?: string) =>
